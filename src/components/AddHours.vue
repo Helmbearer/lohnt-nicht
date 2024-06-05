@@ -2,7 +2,7 @@
   <div>
     <h2>Stunden hinzufügen</h2>
     <select v-model="hoursEntry.project">
-      <option value="" disabled>Kostenstelle auswählen</option>
+      <option value="" disabled>Projekt auswählen</option>
       <option v-for="project in projects" :key="project.name" :value="project.name">
         {{ project.name }}
       </option>
@@ -10,7 +10,7 @@
     <input
         type="text"
         v-model="hoursEntry.hours"
-        placeholder="hh:mm"
+        placeholder="hh:mm oder h,m"
     />
     <button @click="addHours">Stunden hinzufügen</button>
   </div>
@@ -29,10 +29,30 @@ export default {
       const projectIndex = this.projects.findIndex(p => p.name === this.hoursEntry.project);
       if (projectIndex !== -1) {
         const updatedProjects = [...this.projects];
-        updatedProjects[projectIndex].hours = this.addTimes(updatedProjects[projectIndex].hours, this.hoursEntry.hours);
+        updatedProjects[projectIndex].hours = this.addTimes(updatedProjects[projectIndex].hours, this.formatTime(this.hoursEntry.hours));
         this.$emit('update-projects', updatedProjects);
       }
       this.hoursEntry = { project: '', hours: '0:00' };
+    },
+    formatTime(input) {
+      // Falls die Eingabe bereits im hh:mm Format ist
+      if (input.includes(':')) {
+        return input;
+      }
+      // Falls die Eingabe im h,m Format ist
+      if (input.includes(',')) {
+        let [hours, minutes] = input.split(',').map(Number);
+        if (minutes < 10) {
+          minutes *= 10;
+        }
+        return `${hours}:${minutes < 10 ? '0' : ''}${minutes}`;
+      }
+      // Falls die Eingabe nur eine Zahl ist
+      const number = Number(input);
+      if (!isNaN(number)) {
+        return `${number}:00`;
+      }
+      return '0:00';
     },
     addTimes(time1, time2) {
       if (typeof time1 !== 'string') time1 = '0:00';
