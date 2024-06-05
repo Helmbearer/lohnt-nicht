@@ -59,32 +59,35 @@ export default {
       if (typeof time2 !== 'string') time2 = '0:00';
       const [hours1, minutes1] = time1.split(':').map(Number);
       const [hours2, minutes2] = time2.split(':').map(Number);
-      const totalMinutes = (hours1 * 60 + minutes1) - (hours2 * 60 + minutes2);
+      const totalMinutes1 = hours1 * 60 + minutes1;
+      const totalMinutes2 = hours2 * 60 + minutes2;
+      const totalMinutes = totalMinutes1 - totalMinutes2;
       const totalHours = Math.floor(totalMinutes / 60);
-      const remainingMinutes = totalMinutes % 60;
+      const remainingMinutes = Math.abs(totalMinutes % 60);
       return `${totalHours}:${remainingMinutes < 10 ? '0' : ''}${remainingMinutes}`;
     };
 
     const calculateTotals = () => {
-      let totalMinutes = 0;
+      let totalAddMinutes = 0;
+      let totalSubtractMinutes = 0;
 
       projects.value.forEach(project => {
         const [hours, minutes] = project.hours.split(':').map(Number);
         const projectMinutes = hours * 60 + minutes;
 
         if (project.operation === 'add') {
-          totalMinutes += projectMinutes;
+          totalAddMinutes += projectMinutes;
         } else {
-          totalMinutes -= projectMinutes;
+          totalSubtractMinutes += projectMinutes;
         }
       });
 
-      const totalHours = Math.floor(totalMinutes / 60);
-      const remainingMinutes = Math.abs(totalMinutes % 60);
-      const totalTimeCalc = `${totalHours}:${remainingMinutes < 10 ? '0' : ''}${remainingMinutes}`;
+      const netMinutes = totalAddMinutes - totalSubtractMinutes;
+      const totalHours = Math.floor(Math.abs(netMinutes) / 60);
+      const remainingMinutes = Math.abs(netMinutes) % 60;
+      totalTime.value = `${netMinutes >= 0 ? '' : '-'}${totalHours}:${remainingMinutes < 10 ? '0' : ''}${remainingMinutes}`;
 
-      totalTime.value = totalTimeCalc;
-      totalIndustrialHours.value = convertToIndustrialHours(totalMinutes);
+      totalIndustrialHours.value = convertToIndustrialHours(netMinutes);
     };
 
     const convertToIndustrialHours = (totalMinutes) => {
