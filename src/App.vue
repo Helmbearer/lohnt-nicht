@@ -66,21 +66,28 @@ export default {
     };
 
     const calculateTotals = () => {
-      let totalTimeCalc = '0:00';
+      let totalMinutes = 0;
+
       projects.value.forEach(project => {
+        const [hours, minutes] = project.hours.split(':').map(Number);
+        const projectMinutes = hours * 60 + minutes;
+
         if (project.operation === 'add') {
-          totalTimeCalc = addTimes(totalTimeCalc, project.hours);
+          totalMinutes += projectMinutes;
         } else {
-          totalTimeCalc = subtractTimes(totalTimeCalc, project.hours);
+          totalMinutes -= projectMinutes;
         }
       });
+
+      const totalHours = Math.floor(totalMinutes / 60);
+      const remainingMinutes = Math.abs(totalMinutes % 60);
+      const totalTimeCalc = `${totalHours}:${remainingMinutes < 10 ? '0' : ''}${remainingMinutes}`;
+
       totalTime.value = totalTimeCalc;
-      totalIndustrialHours.value = convertToIndustrialHours(totalTimeCalc);
+      totalIndustrialHours.value = convertToIndustrialHours(totalMinutes);
     };
 
-    const convertToIndustrialHours = (time) => {
-      const [hours, minutes] = time.split(':').map(Number);
-      const totalMinutes = hours * 60 + minutes;
+    const convertToIndustrialHours = (totalMinutes) => {
       const industrialHours = totalMinutes / 60;
       return industrialHours.toFixed(2);
     };
