@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2>Projekte</h2>
+    <h2>Kostenstellen</h2>
     <ul>
       <li v-for="(project, index) in projects" :key="index">
         {{ project.name }} - {{ project.hours }}
@@ -8,7 +8,7 @@
           <option value="add">Addieren</option>
           <option value="subtract">Subtrahieren</option>
         </select>
-        <button @click="deleteProject(project.name)">Projekt löschen</button>
+        <button @click="deleteProject(project.name)">Kostenstelle löschen</button>
       </li>
     </ul>
   </div>

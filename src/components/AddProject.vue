@@ -1,12 +1,12 @@
 <template>
   <div>
-    <h2>Projekt hinzufügen</h2>
+    <h2>Kostenstelle hinzufügen</h2>
     <input
         type="text"
         v-model="newProjectName"
-        placeholder="Projektname"
+        placeholder="Kostenstelle"
     />
-    <button @click="addProject">Projekt hinzufügen</button>
+    <button @click="addProject">Kostenstelle hinzufügen</button>
   </div>
 </template>
 

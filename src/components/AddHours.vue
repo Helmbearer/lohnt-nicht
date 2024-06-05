@@ -2,7 +2,7 @@
   <div>
     <h2>Stunden hinzufügen</h2>
     <select v-model="hoursEntry.project">
-      <option value="" disabled>Projekt auswählen</option>
+      <option value="" disabled>Kostenstelle auswählen</option>
       <option v-for="project in projects" :key="project.name" :value="project.name">
         {{ project.name }}
       </option>
