@@ -8,6 +8,11 @@
       <h2>Gesamtsumme</h2>
       <p>Normale Zeit: {{ totalTime }}</p>
       <p>Industriestunden: {{ totalIndustrialHours }}</p>
+      <div>
+        <button @click="exportData('csv')">Export as CSV</button>
+        <button @click="exportData('json')">Export as JSON</button>
+        <button @click="resetApp">Reset App</button>
+      </div>
     </div>
   </div>
 </template>
@@ -95,6 +100,67 @@ export default {
       return industrialHours.toFixed(2);
     };
 
+    const exportData = (format) => {
+      const data = projects.value.map(project => ({
+        name: project.name,
+        hours: project.hours,
+        industrialHours: convertToIndustrialHours(project.hours.split(':').map(Number).reduce((acc, val) => acc * 60 + val)),
+        operation: project.operation
+      }));
+
+      const totals = {
+        totalTime: totalTime.value,
+        totalIndustrialHours: totalIndustrialHours.value
+      };
+
+      if (format === 'csv') {
+        exportCSV(data, totals);
+      } else {
+        exportJSON(data, totals);
+      }
+    };
+
+    const exportCSV = (data, totals) => {
+      let csvContent = "data:text/csv;charset=utf-8,";
+      csvContent += "Name,Hours,Industrial Hours,Operation\n";
+      data.forEach(row => {
+        csvContent += `${row.name},${row.hours},${row.industrialHours},${row.operation}\n`;
+      });
+      csvContent += `Total,${totals.totalTime},${totals.totalIndustrialHours}\n`;
+
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", "projects.csv");
+      document.body.appendChild(link);
+
+      link.click();
+      document.body.removeChild(link);
+    };
+
+    const exportJSON = (data, totals) => {
+      const jsonData = {
+        projects: data,
+        totals: totals
+      };
+
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(jsonData));
+      const link = document.createElement("a");
+      link.setAttribute("href", dataStr);
+      link.setAttribute("download", "projects.json");
+      document.body.appendChild(link);
+
+      link.click();
+      document.body.removeChild(link);
+    };
+
+    const resetApp = () => {
+      projects.value = [];
+      totalTime.value = '0:00';
+      totalIndustrialHours.value = '0.00';
+      localStorage.removeItem('projects');
+    };
+
     return {
       projects,
       totalTime,
@@ -103,7 +169,9 @@ export default {
       addTimes,
       subtractTimes,
       calculateTotals,
-      convertToIndustrialHours
+      convertToIndustrialHours,
+      exportData,
+      resetApp
     };
   }
 };
